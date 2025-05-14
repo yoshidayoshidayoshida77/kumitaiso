@@ -2,16 +2,52 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OVER THE SUN組体操</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8">
+  <title>オーバーザサン組体操チャレンジ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: sans-serif;
+      background: url('OTS_logo.png') no-repeat center center;
+      background-size: contain;
+      background-color: #fff;
+    }
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 8px 16px;
+      font-size: 18px;
+      border-radius: 6px;
+      z-index: 10;
+    }
+    #shareButton {
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      padding: 10px 16px;
+      font-size: 16px;
+      background-color: #1da1f2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      display: none;
+      z-index: 10;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
 </head>
 <body>
   <div id="score">スコア: 0</div>
+  <button id="shareButton">Xでシェア</button>
+  <audio id="bgm" src="bgm.mp3" loop></audio>
   <canvas id="gameCanvas"></canvas>
-  <button id="shareButton" style="display:none;">Xでシェア</button>
-  <audio id="bgm" src="sounds/bgm.mp3" loop></audio>
   <script src="script.js"></script>
 </body>
 </html>
