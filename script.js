@@ -59,13 +59,7 @@ function update() {
     current.y += current.dy;
     drawBlock(current);
 
-    const topY = stack.length ? stack[stack.length - 1].y : canvas.height - 100;
-    if (current.y + current.height >= topY) {
-      if (stack.length && (current.x + current.width < stack[stack.length - 1].x || current.x > stack[stack.length - 1].x + stack[stack.length - 1].width)) {
-        bgm.pause();
-        shareButton.style.display = "block";
-        return;
-      }
+    if (stack.length === 0 || current.y + current.height >= stack[stack.length - 1].y) {
       stack.push(current);
       score++;
       speed = 2 + Math.floor(score / 10);
@@ -100,8 +94,8 @@ canvas.addEventListener("touchend", e => {
   if (!current) return;
 
   if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    if (deltaX > 30) current.x += 30;
-    else if (deltaX < -30) current.x -= 30;
+    if (deltaX > 30) current.x += 20;
+    else if (deltaX < -30) current.x -= 20;
   } else {
     if (deltaY > 30) {
       current.y += 10;
