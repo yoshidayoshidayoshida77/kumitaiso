@@ -20,22 +20,25 @@ let imgPaths = [
   "S__56541206_0.png", "S__56541207_0.png", "S__56541208_0.png", "S__56541210_0.png", "S__56541211_0.png"
 ];
 
-// 遅延読み込み対策
 let loadedCount = 0;
+let totalImages = imgPaths.length;
 
 imgPaths.forEach(src => {
   const img = new Image();
-  img.onload = () => {
-    loadedCount++;
-    if (loadedCount === imgPaths.length) {
-      current = createBlock();
-      update();
-      bgm.play();
-    }
-  };
+  img.onload = checkStart;
+  img.onerror = checkStart;
   img.src = `images/${src}`;
   images.push(img);
 });
+
+function checkStart() {
+  loadedCount++;
+  if (loadedCount >= totalImages) {
+    current = createBlock();
+    update();
+    bgm.play();
+  }
+}
 
 function createBlock() {
   const img = images[Math.floor(Math.random() * images.length)];
