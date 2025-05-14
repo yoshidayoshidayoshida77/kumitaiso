@@ -14,7 +14,12 @@ let speed = 2;
 let stack = [];
 let images = [];
 let current;
-let imgPaths = ["S__56541186_0.jpg","S__56541188_0.jpg","S__56541189_0.jpg","S__56541190_0.jpg","S__56541191_0.jpg","S__56541192_0.jpg","S__56541193_0.jpg","S__56541194_0.jpg","S__56541195_0.jpg","S__56541199_0.jpg","S__56541200_0.jpg","S__56541201_0.jpg","S__56541202_0.jpg","S__56541203_0.jpg","S__56541205_0.jpg","S__56541206_0.jpg","S__56541207_0.jpg","S__56541208_0.jpg","S__56541210_0.jpg","S__56541211_0.jpg"];
+let imgPaths = [
+  "S__56541186_0.jpg", "S__56541188_0.jpg", "S__56541189_0.jpg", "S__56541190_0.jpg", "S__56541191_0.jpg",
+  "S__56541192_0.jpg", "S__56541193_0.jpg", "S__56541194_0.jpg", "S__56541195_0.jpg", "S__56541199_0.jpg",
+  "S__56541200_0.jpg", "S__56541201_0.jpg", "S__56541202_0.jpg", "S__56541203_0.jpg", "S__56541205_0.jpg",
+  "S__56541206_0.jpg", "S__56541207_0.jpg", "S__56541208_0.jpg", "S__56541210_0.jpg", "S__56541211_0.jpg"
+];
 
 imgPaths.forEach(src => {
   const img = new Image();
@@ -30,12 +35,17 @@ function createBlock() {
     width: 100,
     height: 100,
     img: img,
-    dy: speed
+    dy: speed,
+    rotation: 0
   };
 }
 
 function drawBlock(b) {
-  ctx.drawImage(b.img, b.x, b.y, b.width, b.height);
+  ctx.save();
+  ctx.translate(b.x + b.width / 2, b.y + b.height / 2);
+  ctx.rotate((b.rotation || 0) * Math.PI / 180);
+  ctx.drawImage(b.img, -b.width / 2, -b.height / 2, b.width, b.height);
+  ctx.restore();
 }
 
 function update() {
@@ -73,12 +83,33 @@ function update() {
   requestAnimationFrame(update);
 }
 
-document.addEventListener("keydown", e => {
+let touchStartX = 0;
+let touchStartY = 0;
+
+canvas.addEventListener("touchstart", e => {
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+});
+
+canvas.addEventListener("touchend", e => {
+  const touch = e.changedTouches[0];
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
+
   if (!current) return;
-  if (e.key === "ArrowLeft") current.x -= 10;
-  if (e.key === "ArrowRight") current.x += 10;
-  if (e.key === "ArrowUp") current.y -= 10;
-  if (e.key === "ArrowDown") current.y += 10;
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    if (deltaX > 30) current.x += 10;
+    else if (deltaX < -30) current.x -= 10;
+  } else {
+    if (deltaY > 30) {
+      current.y += 10;
+    } else if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+      current.rotation = (current.rotation || 0) + 90;
+      if (current.rotation >= 360) current.rotation = 0;
+    }
+  }
 });
 
 shareButton.onclick = () => {
