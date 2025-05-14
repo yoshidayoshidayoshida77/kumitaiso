@@ -7,7 +7,6 @@ canvas.height = window.innerHeight;
 const scoreDisplay = document.getElementById("score");
 const shareButton = document.getElementById("shareButton");
 const bgm = document.getElementById("bgm");
-bgm.play();
 
 let score = 0;
 let speed = 2;
@@ -21,8 +20,19 @@ let imgPaths = [
   "S__56541206_0.png", "S__56541207_0.png", "S__56541208_0.png", "S__56541210_0.png", "S__56541211_0.png"
 ];
 
+// 遅延読み込み対策
+let loadedCount = 0;
+
 imgPaths.forEach(src => {
   const img = new Image();
+  img.onload = () => {
+    loadedCount++;
+    if (loadedCount === imgPaths.length) {
+      current = createBlock();
+      update();
+      bgm.play();
+    }
+  };
   img.src = `images/${src}`;
   images.push(img);
 });
@@ -107,10 +117,7 @@ canvas.addEventListener("touchend", e => {
 });
 
 shareButton.onclick = () => {
-  const text = encodeURIComponent("OVER THE SUN組体操 やってみた！ #ots組体操");
+  const text = encodeURIComponent("OVER THE SUN組体操チャレンジ やってみた！ #ots組体操 #overthesun");
   const url = encodeURIComponent(location.href);
   window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
 };
-
-current = createBlock();
-update();
