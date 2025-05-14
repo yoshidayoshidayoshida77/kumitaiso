@@ -16,8 +16,8 @@ let images = [];
 let current;
 let imgPaths = [
   "S__56541186_0.png", "S__56541188_0.png", "S__56541189_0.png", "S__56541190_0.png", "S__56541191_0.png",
-  "S__56541192_0.png", "S__56541193_0.png", "S__56541194_0.png", "S__56541195_0.png", "S__56541196_0.png",
-  "S__56541199_0.png", "S__56541200_0.png", "S__56541201_0.png", "S__56541202_0.png", "S__56541205_0.png",
+  "S__56541192_0.png", "S__56541193_0.png", "S__56541194_0.png", "S__56541195_0.png", "S__56541199_0.png",
+  "S__56541200_0.png", "S__56541201_0.png", "S__56541202_0.png", "S__56541203_0.png", "S__56541205_0.png",
   "S__56541206_0.png", "S__56541207_0.png", "S__56541208_0.png", "S__56541210_0.png", "S__56541211_0.png"
 ];
 
@@ -100,8 +100,8 @@ canvas.addEventListener("touchend", e => {
   if (!current) return;
 
   if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    if (deltaX > 30) current.x += 10;
-    else if (deltaX < -30) current.x -= 10;
+    if (deltaX > 30) current.x += 30;
+    else if (deltaX < -30) current.x -= 30;
   } else {
     if (deltaY > 30) {
       current.y += 10;
