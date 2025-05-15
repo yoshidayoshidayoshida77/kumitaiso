@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
@@ -6,24 +5,33 @@ canvas.height = window.innerHeight;
 
 const scoreDisplay = document.getElementById("score");
 const shareButton = document.getElementById("shareButton");
+const startButton = document.getElementById("startButton");
 const bgm = document.getElementById("bgm");
-bgm.play();
 
 let score = 0;
 let speed = 2;
 let stack = [];
 let images = [];
-let current;
-let imgPaths = [
-  "S__56541186_0.png", "S__56541188_0.png", "S__56541189_0.png", "S__56541190_0.png", "S__56541191_0.png",
-  "S__56541192_0.png", "S__56541193_0.png", "S__56541194_0.png", "S__56541195_0.png", "S__56541199_0.png",
-  "S__56541200_0.png", "S__56541201_0.png", "S__56541202_0.png", "S__56541203_0.png", "S__56541205_0.png",
-  "S__56541206_0.png", "S__56541207_0.png", "S__56541208_0.png", "S__56541210_0.png", "S__56541211_0.png"
-];
+let current = null;
+let gameOver = false;
+let started = false;
 
+let imgPaths = [];
+for (let i = 0; i <= 20; i++) {
+  imgPaths.push(`images/S__5654118${(i < 10 ? '6' : '')}${i}_0.png`);
+}
+
+let loadedImages = 0;
 imgPaths.forEach(src => {
   const img = new Image();
-  img.src = `images/${src}`;
+  img.onload = () => {
+    loadedImages++;
+    if (loadedImages === imgPaths.length && started) {
+      current = createBlock();
+      update();
+    }
+  };
+  img.src = src;
   images.push(img);
 });
 
@@ -48,8 +56,22 @@ function drawBlock(b) {
   ctx.restore();
 }
 
+function detectFall() {
+  for (let i = 1; i < stack.length; i++) {
+    const prev = stack[i - 1];
+    const curr = stack[i];
+    const centerDiff = Math.abs((curr.x + curr.width / 2) - (prev.x + prev.width / 2));
+    if (centerDiff > 50) return true;
+  }
+  return false;
+}
+
 function update() {
+  if (gameOver) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
 
   stack.forEach(drawBlock);
 
@@ -57,14 +79,21 @@ function update() {
     current.y += current.dy;
     drawBlock(current);
 
-    const topY = stack.length ? stack[stack.length - 1].y : canvas.height - 100;
-    if (current.y + current.height >= topY) {
+    if (current.y + current.height >= canvas.height - 20 - stack.length * 100) {
       stack.push(current);
+      if (detectFall()) {
+        gameOver = true;
+        bgm.pause();
+        shareButton.style.display = "block";
+        return;
+      }
       score++;
+      speed = 2 + Math.floor(score / 10);
       current = createBlock();
     }
 
     if (stack.length * 100 > canvas.height) {
+      gameOver = true;
       bgm.pause();
       shareButton.style.display = "block";
       return;
@@ -107,5 +136,14 @@ shareButton.onclick = () => {
   window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
 };
 
-current = createBlock();
-update();
+startButton.onclick = () => {
+  if (!started) {
+    started = true;
+    startButton.style.display = "none";
+    bgm.play();
+    if (loadedImages === images.length) {
+      current = createBlock();
+      update();
+    }
+  }
+};
