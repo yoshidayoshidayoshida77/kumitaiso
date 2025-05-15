@@ -24,9 +24,8 @@
       border-radius: 6px;
       z-index: 10;
     }
-    #shareButton {
+    #shareButton, #startButton {
       position: absolute;
-      top: 60px;
       left: 10px;
       padding: 10px 16px;
       font-size: 16px;
@@ -37,6 +36,14 @@
       display: none;
       z-index: 10;
     }
+    #startButton {
+      top: 110px;
+      display: block;
+      background-color: #28a745;
+    }
+    #shareButton {
+      top: 60px;
+    }
     canvas {
       display: block;
     }
@@ -45,6 +52,7 @@
 <body>
   <div id="score">スコア: 0</div>
   <button id="shareButton">Xでシェア</button>
+  <button id="startButton">スタート</button>
   <audio id="bgm" src="bgm.mp3" loop></audio>
   <canvas id="gameCanvas"></canvas>
   <script src="script.js"></script>
