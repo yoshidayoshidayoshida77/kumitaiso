@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
@@ -7,33 +6,18 @@ canvas.height = window.innerHeight;
 const scoreDisplay = document.getElementById("score");
 const shareButton = document.getElementById("shareButton");
 const bgm = document.getElementById("bgm");
+bgm.play();
 
 let score = 0;
 let speed = 2;
 let stack = [];
 let images = [];
 let current;
-let imgPaths = [
-  "S__56541186_0.png", "S__56541188_0.png", "S__56541189_0.png", "S__56541190_0.png", "S__56541191_0.png",
-  "S__56541192_0.png", "S__56541193_0.png", "S__56541194_0.png", "S__56541195_0.png", "S__56541199_0.png",
-  "S__56541200_0.png", "S__56541201_0.png", "S__56541202_0.png", "S__56541203_0.png", "S__56541205_0.png",
-  "S__56541206_0.png", "S__56541207_0.png", "S__56541208_0.png", "S__56541210_0.png", "S__56541211_0.png"
-];
-
-let loadedCount = 0;
-let totalImages = imgPaths.length;
+let imgPaths = [...Array(21)].map((_, i) => `images/S__56541${String(i + 186).padStart(3, '0')}_0.png`);
 
 imgPaths.forEach(src => {
   const img = new Image();
-  img.onload = img.onerror = () => {
-    loadedCount++;
-    if (loadedCount === totalImages) {
-      current = createBlock();
-      update();
-      bgm.play();
-    }
-  };
-  img.src = `images/${src}`;
+  img.src = src;
   images.push(img);
 });
 
@@ -60,6 +44,7 @@ function drawBlock(b) {
 
 function update() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   stack.forEach(drawBlock);
 
   if (current) {
@@ -70,7 +55,6 @@ function update() {
     if (current.y + current.height >= topY) {
       stack.push(current);
       score++;
-      speed = 2 + Math.floor(score / 10);
       current = createBlock();
     }
 
@@ -116,3 +100,6 @@ shareButton.onclick = () => {
   const url = encodeURIComponent(location.href);
   window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
 };
+
+current = createBlock();
+update();
