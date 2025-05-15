@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -13,18 +14,6 @@
       background-size: contain;
       background-color: #fff;
     }
-    #startButton {
-      position: absolute;
-      top: 120px;
-      left: 10px;
-      padding: 10px 16px;
-      font-size: 16px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      z-index: 10;
-    }
     #score {
       position: absolute;
       top: 10px;
@@ -36,18 +25,24 @@
       border-radius: 6px;
       z-index: 10;
     }
-    #shareButton {
+    #shareButton, #startButton {
       position: absolute;
-      top: 60px;
       left: 10px;
       padding: 10px 16px;
       font-size: 16px;
-      background-color: #1da1f2;
       color: white;
       border: none;
       border-radius: 5px;
-      display: none;
       z-index: 10;
+    }
+    #shareButton {
+      top: 60px;
+      background-color: #1da1f2;
+      display: none;
+    }
+    #startButton {
+      top: 110px;
+      background-color: #28a745;
     }
     canvas {
       display: block;
