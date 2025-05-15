@@ -1,3 +1,4 @@
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
@@ -12,26 +13,26 @@ let score = 0;
 let speed = 2;
 let stack = [];
 let images = [];
-let current = null;
-let gameOver = false;
-let started = false;
+let current;
+let isGameRunning = false;
 
-let imgPaths = [];
-for (let i = 0; i <= 20; i++) {
-  imgPaths.push(`images/S__5654118${(i < 10 ? '6' : '')}${i}_0.png`);
-}
+let imgPaths = [
+  "S__56541186_0.png", "S__56541188_0.png", "S__56541189_0.png", "S__56541190_0.png", "S__56541191_0.png",
+  "S__56541192_0.png", "S__56541193_0.png", "S__56541194_0.png", "S__56541195_0.png", "S__56541199_0.png",
+  "S__56541200_0.png", "S__56541201_0.png", "S__56541202_0.png", "S__56541203_0.png", "S__56541205_0.png",
+  "S__56541206_0.png", "S__56541207_0.png", "S__56541208_0.png", "S__56541210_0.png", "S__56541211_0.png"
+];
 
-let loadedImages = 0;
+let loadedCount = 0;
 imgPaths.forEach(src => {
   const img = new Image();
+  img.src = `images/${src}`;
   img.onload = () => {
-    loadedImages++;
-    if (loadedImages === imgPaths.length && started) {
-      current = createBlock();
-      update();
+    loadedCount++;
+    if (loadedCount === imgPaths.length) {
+      startButton.style.display = "block";
     }
   };
-  img.src = src;
   images.push(img);
 });
 
@@ -56,44 +57,26 @@ function drawBlock(b) {
   ctx.restore();
 }
 
-function detectFall() {
-  for (let i = 1; i < stack.length; i++) {
-    const prev = stack[i - 1];
-    const curr = stack[i];
-    const centerDiff = Math.abs((curr.x + curr.width / 2) - (prev.x + prev.width / 2));
-    if (centerDiff > 50) return true;
-  }
-  return false;
-}
-
 function update() {
-  if (gameOver) return;
+  if (!isGameRunning) return;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
-
   stack.forEach(drawBlock);
 
   if (current) {
     current.y += current.dy;
     drawBlock(current);
 
-    if (current.y + current.height >= canvas.height - 20 - stack.length * 100) {
+    const topY = stack.length ? stack[stack.length - 1].y : canvas.height - 100;
+    if (current.y + current.height >= topY) {
       stack.push(current);
-      if (detectFall()) {
-        gameOver = true;
-        bgm.pause();
-        shareButton.style.display = "block";
-        return;
-      }
       score++;
       speed = 2 + Math.floor(score / 10);
       current = createBlock();
     }
 
     if (stack.length * 100 > canvas.height) {
-      gameOver = true;
+      isGameRunning = false;
       bgm.pause();
       shareButton.style.display = "block";
       return;
@@ -114,6 +97,7 @@ canvas.addEventListener("touchstart", e => {
 });
 
 canvas.addEventListener("touchend", e => {
+  if (!isGameRunning) return;
   const touch = e.changedTouches[0];
   const deltaX = touch.clientX - touchStartX;
   const deltaY = touch.clientY - touchStartY;
@@ -137,13 +121,13 @@ shareButton.onclick = () => {
 };
 
 startButton.onclick = () => {
-  if (!started) {
-    started = true;
-    startButton.style.display = "none";
-    bgm.play();
-    if (loadedImages === images.length) {
-      current = createBlock();
-      update();
-    }
-  }
+  score = 0;
+  speed = 2;
+  stack = [];
+  isGameRunning = true;
+  shareButton.style.display = "none";
+  current = createBlock();
+  bgm.currentTime = 0;
+  bgm.play();
+  update();
 };
