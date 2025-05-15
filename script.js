@@ -1,3 +1,4 @@
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
@@ -5,23 +6,24 @@ canvas.height = window.innerHeight;
 
 const scoreDisplay = document.getElementById("score");
 const shareButton = document.getElementById("shareButton");
-const startButton = document.getElementById("startButton");
 const bgm = document.getElementById("bgm");
+bgm.play();
 
 let score = 0;
+let speed = 2;
 let stack = [];
 let images = [];
-let current = null;
-let gameStarted = false;
-let imgPaths = [];
-
-for (let i = 0; i < 20; i++) {
-  imgPaths.push(`images/S__5654118${6 + i}_0.png`);
-}
+let current;
+let imgPaths = [
+  "S__56541186_0.png", "S__56541188_0.png", "S__56541189_0.png", "S__56541190_0.png", "S__56541191_0.png",
+  "S__56541192_0.png", "S__56541193_0.png", "S__56541194_0.png", "S__56541195_0.png", "S__56541199_0.png",
+  "S__56541200_0.png", "S__56541201_0.png", "S__56541202_0.png", "S__56541203_0.png", "S__56541205_0.png",
+  "S__56541206_0.png", "S__56541207_0.png", "S__56541208_0.png", "S__56541210_0.png", "S__56541211_0.png"
+];
 
 imgPaths.forEach(src => {
   const img = new Image();
-  img.src = src;
+  img.src = `images/${src}`;
   images.push(img);
 });
 
@@ -33,7 +35,7 @@ function createBlock() {
     width: 100,
     height: 100,
     img: img,
-    dy: 2,
+    dy: speed,
     rotation: 0
   };
 }
@@ -46,16 +48,8 @@ function drawBlock(b) {
   ctx.restore();
 }
 
-function drawBase() {
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
-}
-
 function update() {
-  if (!gameStarted) return;
-
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBase();
 
   stack.forEach(drawBlock);
 
@@ -63,10 +57,17 @@ function update() {
     current.y += current.dy;
     drawBlock(current);
 
-    if (current.y + current.height >= canvas.height - 40) {
+    const topY = stack.length ? stack[stack.length - 1].y : canvas.height - 100;
+    if (current.y + current.height >= topY) {
       stack.push(current);
       score++;
       current = createBlock();
+    }
+
+    if (stack.length * 100 > canvas.height) {
+      bgm.pause();
+      shareButton.style.display = "block";
+      return;
     }
   }
 
@@ -74,15 +75,37 @@ function update() {
   requestAnimationFrame(update);
 }
 
-startButton.onclick = () => {
-  gameStarted = true;
-  bgm.play();
-  current = createBlock();
-  update();
-};
+let touchStartX = 0;
+let touchStartY = 0;
+
+canvas.addEventListener("touchstart", e => {
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+});
+
+canvas.addEventListener("touchend", e => {
+  const touch = e.changedTouches[0];
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
+
+  if (!current) return;
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    if (deltaX > 30) current.x += 20;
+    else if (deltaX < -30) current.x -= 20;
+  } else {
+    if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+      current.rotation = (current.rotation + 90) % 360;
+    }
+  }
+});
 
 shareButton.onclick = () => {
   const text = encodeURIComponent("OVER THE SUN組体操チャレンジ やってみた！ #ots組体操 #overthesun");
   const url = encodeURIComponent(location.href);
   window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
 };
+
+current = createBlock();
+update();
