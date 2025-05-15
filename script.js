@@ -14,7 +14,12 @@ let speed = 2;
 let stack = [];
 let images = [];
 let current;
-let imgPaths = Array.from({ length: 20 }, (_, i) => `S__5654118${6 + i}_0.png`);
+let imgPaths = [
+  "S__56541186_0.png", "S__56541188_0.png", "S__56541189_0.png", "S__56541190_0.png", "S__56541191_0.png",
+  "S__56541192_0.png", "S__56541193_0.png", "S__56541194_0.png", "S__56541195_0.png", "S__56541199_0.png",
+  "S__56541200_0.png", "S__56541201_0.png", "S__56541202_0.png", "S__56541203_0.png", "S__56541205_0.png",
+  "S__56541206_0.png", "S__56541207_0.png", "S__56541208_0.png", "S__56541210_0.png", "S__56541211_0.png"
+];
 
 imgPaths.forEach(src => {
   const img = new Image();
@@ -46,18 +51,16 @@ function drawBlock(b) {
 function update() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  for (let b of stack) {
-    drawBlock(b);
-  }
+  stack.forEach(drawBlock);
 
   if (current) {
     current.y += current.dy;
     drawBlock(current);
 
-    if (stack.length === 0 || current.y + current.height >= stack[stack.length - 1].y) {
+    const topY = stack.length ? stack[stack.length - 1].y : canvas.height - 100;
+    if (current.y + current.height >= topY) {
       stack.push(current);
       score++;
-      speed = 2 + Math.floor(score / 10);
       current = createBlock();
     }
 
@@ -92,11 +95,8 @@ canvas.addEventListener("touchend", e => {
     if (deltaX > 30) current.x += 20;
     else if (deltaX < -30) current.x -= 20;
   } else {
-    if (deltaY > 30) {
-      current.y += 10;
-    } else if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
-      current.rotation = (current.rotation || 0) + 90;
-      if (current.rotation >= 360) current.rotation = 0;
+    if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+      current.rotation = (current.rotation + 90) % 360;
     }
   }
 });
