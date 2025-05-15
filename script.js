@@ -41,7 +41,8 @@ function checkStart() {
 }
 
 function createBlock() {
-  const img = images[Math.floor(Math.random() * images.length)];
+  const available = images.filter(img => img.complete);
+  const img = available[Math.floor(Math.random() * available.length)];
   return {
     x: canvas.width / 2 - 50,
     y: 0,
