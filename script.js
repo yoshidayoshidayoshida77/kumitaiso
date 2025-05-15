@@ -14,21 +14,19 @@ let speed = 2;
 let stack = [];
 let images = [];
 let current;
-let imgPaths = Array.from({length: 20}, (_, i) =>
-  `images/S__565411${(i < 9 ? '8' : '')}${86 + i}_0.png`
-);
+let imgPaths = Array.from({ length: 20 }, (_, i) => `S__5654118${6 + i}_0.png`);
 
 imgPaths.forEach(src => {
   const img = new Image();
-  img.src = src;
+  img.src = `images/${src}`;
   images.push(img);
 });
 
 function createBlock() {
   const img = images[Math.floor(Math.random() * images.length)];
   return {
-    x: Math.random() * (canvas.width - 100),
-    y: -100,
+    x: canvas.width / 2 - 50,
+    y: 0,
     width: 100,
     height: 100,
     img: img,
@@ -47,7 +45,10 @@ function drawBlock(b) {
 
 function update() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (let b of stack) drawBlock(b);
+
+  for (let b of stack) {
+    drawBlock(b);
+  }
 
   if (current) {
     current.y += current.dy;
@@ -60,7 +61,7 @@ function update() {
       current = createBlock();
     }
 
-    if (current.y > canvas.height) {
+    if (stack.length * 100 > canvas.height) {
       bgm.pause();
       shareButton.style.display = "block";
       return;
