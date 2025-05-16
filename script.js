@@ -22,11 +22,24 @@ const imgPaths = [
   "S__56541806_0.png", "S__56541807_0.png", "S__56541808_0.png", "S__56541809_0.png", "S__56541810_0.png"
 ];
 
-imgPaths.forEach(src => {
-  const img = new Image();
-  img.src = imgBaseURL + src;
-  images.push(img);
-});
+const logo = new Image();
+logo.src = imgBaseURL + "OTS_logo.png";
+
+function preloadImages(srcs) {
+  return Promise.all(srcs.map(src => {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.src = imgBaseURL + src;
+    });
+  }));
+}
+
+function drawBaseAndLogo() {
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, canvas.height - 10, canvas.width, 10);
+  ctx.drawImage(logo, canvas.width / 2 - 150, canvas.height / 2 - 150, 300, 100);
+}
 
 function createBlock() {
   const img = images[Math.floor(Math.random() * images.length)];
@@ -51,15 +64,19 @@ function drawBlock(b) {
 
 function update() {
   if (!gameRunning) return;
-
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBaseAndLogo();
+
   stack.forEach(drawBlock);
 
   if (current) {
     current.y += current.dy;
     drawBlock(current);
 
-    const topY = stack.length ? stack[stack.length - 1].y : canvas.height - 100;
+    const topY = stack.length
+      ? Math.min(...stack.map(b => b.y))
+      : canvas.height - 100;
+
     if (current.y + current.height >= topY) {
       if (
         stack.length &&
@@ -131,3 +148,8 @@ startButton.onclick = () => {
   shareButton.style.display = "none";
   update();
 };
+
+preloadImages(imgPaths).then(loaded => {
+  images = loaded;
+  startButton.disabled = false;
+});

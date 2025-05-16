@@ -10,8 +10,6 @@
       margin: 0;
       overflow: hidden;
       font-family: sans-serif;
-      background: url('https://yoshidayoshidayoshida77.github.io/kumitaiso/images/OTS_logo.png') no-repeat center center;
-      background-size: contain;
       background-color: #fff;
     }
     #score {
@@ -52,7 +50,7 @@
 <body>
   <div id="score">スコア: 0</div>
   <button id="shareButton">Xでシェア</button>
-  <button id="startButton">スタート</button>
+  <button id="startButton" disabled>スタート</button>
   <audio id="bgm" src="bgm.mp3" loop></audio>
   <canvas id="gameCanvas"></canvas>
   <script src="script.js"></script>
