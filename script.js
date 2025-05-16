@@ -13,26 +13,14 @@ let score = 0;
 let speed = 2;
 let stack = [];
 let images = [];
-let current;
-let isGameRunning = false;
+let current = null;
+let gameStarted = false;
 
-let imgPaths = [
-  "S__56541186_0.png", "S__56541188_0.png", "S__56541189_0.png", "S__56541190_0.png", "S__56541191_0.png",
-  "S__56541192_0.png", "S__56541193_0.png", "S__56541194_0.png", "S__56541195_0.png", "S__56541199_0.png",
-  "S__56541200_0.png", "S__56541201_0.png", "S__56541202_0.png", "S__56541203_0.png", "S__56541205_0.png",
-  "S__56541206_0.png", "S__56541207_0.png", "S__56541208_0.png", "S__56541210_0.png", "S__56541211_0.png"
-];
+let imgPaths = ["images/placeholder.png"];
 
-let loadedCount = 0;
 imgPaths.forEach(src => {
   const img = new Image();
-  img.src = `images/${src}`;
-  img.onload = () => {
-    loadedCount++;
-    if (loadedCount === imgPaths.length) {
-      startButton.style.display = "block";
-    }
-  };
+  img.src = src;
   images.push(img);
 });
 
@@ -58,25 +46,24 @@ function drawBlock(b) {
 }
 
 function update() {
-  if (!isGameRunning) return;
+  if (!gameStarted) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  stack.forEach(drawBlock);
+
+  for (let b of stack) drawBlock(b);
 
   if (current) {
     current.y += current.dy;
     drawBlock(current);
 
-    const topY = stack.length ? stack[stack.length - 1].y : canvas.height - 100;
-    if (current.y + current.height >= topY) {
+    let collision = stack.length && current.y + current.height >= stack[stack.length - 1].y;
+    if (!stack.length || collision) {
       stack.push(current);
       score++;
-      speed = 2 + Math.floor(score / 10);
       current = createBlock();
     }
 
     if (stack.length * 100 > canvas.height) {
-      isGameRunning = false;
       bgm.pause();
       shareButton.style.display = "block";
       return;
@@ -97,7 +84,6 @@ canvas.addEventListener("touchstart", e => {
 });
 
 canvas.addEventListener("touchend", e => {
-  if (!isGameRunning) return;
   const touch = e.changedTouches[0];
   const deltaX = touch.clientX - touchStartX;
   const deltaY = touch.clientY - touchStartY;
@@ -121,13 +107,8 @@ shareButton.onclick = () => {
 };
 
 startButton.onclick = () => {
-  score = 0;
-  speed = 2;
-  stack = [];
-  isGameRunning = true;
-  shareButton.style.display = "none";
-  current = createBlock();
-  bgm.currentTime = 0;
+  gameStarted = true;
   bgm.play();
+  current = createBlock();
   update();
 };
