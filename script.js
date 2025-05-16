@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
@@ -13,14 +12,19 @@ let score = 0;
 let speed = 2;
 let stack = [];
 let images = [];
-let current = null;
-let gameStarted = false;
+let current;
+let running = false;
 
-let imgPaths = ["images/placeholder.png"];
+let imgPaths = [
+  "S__56541186_0.png", "S__56541188_0.png", "S__56541189_0.png", "S__56541190_0.png", "S__56541191_0.png",
+  "S__56541192_0.png", "S__56541193_0.png", "S__56541194_0.png", "S__56541195_0.png", "S__56541199_0.png",
+  "S__56541200_0.png", "S__56541201_0.png", "S__56541202_0.png", "S__56541203_0.png", "S__56541205_0.png",
+  "S__56541206_0.png", "S__56541207_0.png", "S__56541208_0.png", "S__56541210_0.png", "S__56541211_0.png"
+];
 
 imgPaths.forEach(src => {
   const img = new Image();
-  img.src = src;
+  img.src = `images/${src}`;
   images.push(img);
 });
 
@@ -46,18 +50,17 @@ function drawBlock(b) {
 }
 
 function update() {
-  if (!gameStarted) return;
+  if (!running) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  for (let b of stack) drawBlock(b);
+  stack.forEach(drawBlock);
 
   if (current) {
     current.y += current.dy;
     drawBlock(current);
 
-    let collision = stack.length && current.y + current.height >= stack[stack.length - 1].y;
-    if (!stack.length || collision) {
+    if (stack.length === 0 || current.y + current.height >= stack[stack.length - 1].y) {
       stack.push(current);
       score++;
       current = createBlock();
@@ -66,6 +69,7 @@ function update() {
     if (stack.length * 100 > canvas.height) {
       bgm.pause();
       shareButton.style.display = "block";
+      running = false;
       return;
     }
   }
@@ -107,8 +111,12 @@ shareButton.onclick = () => {
 };
 
 startButton.onclick = () => {
-  gameStarted = true;
-  bgm.play();
+  score = 0;
+  speed = 2;
+  stack = [];
   current = createBlock();
+  running = true;
+  bgm.play();
+  shareButton.style.display = "none";
   update();
 };
