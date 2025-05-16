@@ -13,17 +13,18 @@ let score = 0;
 let speed = 2;
 let stack = [];
 let images = [];
-let current;
-let running = false;
+let current = null;
+let gameRunning = false;
 
-let imgPaths = [];
-for (let i = 1; i <= 20; i++) {
-  imgPaths.push(`images/S__5654118${i < 10 ? '0' + i : i}_0.png`);
-}
+const imgBaseURL = "https://yoshidayoshidayoshida77.github.io/kumitaiso/images/";
+const imgPaths = [
+  "S__56541801_0.png", "S__56541802_0.png", "S__56541803_0.png", "S__56541804_0.png", "S__56541805_0.png",
+  "S__56541806_0.png", "S__56541807_0.png", "S__56541808_0.png", "S__56541809_0.png", "S__56541810_0.png"
+];
 
 imgPaths.forEach(src => {
   const img = new Image();
-  img.src = src;
+  img.src = imgBaseURL + src;
   images.push(img);
 });
 
@@ -48,47 +49,38 @@ function drawBlock(b) {
   ctx.restore();
 }
 
-function checkCollision(b1, b2) {
-  return !(
-    b1.x + b1.width < b2.x ||
-    b1.x > b2.x + b2.width ||
-    b1.y + b1.height < b2.y ||
-    b1.y > b2.y + b2.height
-  );
-}
-
 function update() {
-  if (!running) return;
+  if (!gameRunning) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  for (let b of stack) {
-    drawBlock(b);
-  }
+  stack.forEach(drawBlock);
 
   if (current) {
     current.y += current.dy;
     drawBlock(current);
 
-    for (let b of stack) {
-      if (checkCollision(current, b)) {
-        if (Math.abs(current.x - b.x) > 100) {
-          bgm.pause();
-          shareButton.style.display = "block";
-          running = false;
-          return;
-        }
-        stack.push(current);
-        score++;
-        current = createBlock();
-        break;
+    const topY = stack.length ? stack[stack.length - 1].y : canvas.height - 100;
+    if (current.y + current.height >= topY) {
+      if (
+        stack.length &&
+        (current.x + current.width < stack[stack.length - 1].x ||
+         current.x > stack[stack.length - 1].x + stack[stack.length - 1].width)
+      ) {
+        bgm.pause();
+        gameRunning = false;
+        shareButton.style.display = "block";
+        return;
       }
-    }
-
-    if (current.y + current.height >= canvas.height) {
       stack.push(current);
       score++;
       current = createBlock();
+    }
+
+    if (stack.length * 100 > canvas.height) {
+      bgm.pause();
+      gameRunning = false;
+      shareButton.style.display = "block";
+      return;
     }
   }
 
@@ -96,24 +88,29 @@ function update() {
   requestAnimationFrame(update);
 }
 
+let touchStartX = 0;
+let touchStartY = 0;
+
 canvas.addEventListener("touchstart", e => {
   const touch = e.touches[0];
-  startX = touch.clientX;
-  startY = touch.clientY;
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
 });
 
 canvas.addEventListener("touchend", e => {
-  const touch = e.changedTouches[0];
-  const deltaX = touch.clientX - startX;
-  const deltaY = touch.clientY - startY;
+  if (!current || !gameRunning) return;
 
-  if (!current) return;
+  const touch = e.changedTouches[0];
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
 
   if (Math.abs(deltaX) > Math.abs(deltaY)) {
     if (deltaX > 30) current.x += 20;
     else if (deltaX < -30) current.x -= 20;
-  } else if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
-    current.rotation = (current.rotation + 90) % 360;
+  } else {
+    if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+      current.rotation = (current.rotation + 90) % 360;
+    }
   }
 });
 
@@ -125,10 +122,12 @@ shareButton.onclick = () => {
 
 startButton.onclick = () => {
   score = 0;
-  stack = [];
   speed = 2;
+  stack = [];
+  gameRunning = true;
   current = createBlock();
-  running = true;
+  bgm.currentTime = 0;
   bgm.play();
+  shareButton.style.display = "none";
   update();
 };
